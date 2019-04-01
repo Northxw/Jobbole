@@ -125,8 +125,8 @@ class MysqlTwistedPipeline(object):
 ```
 &emsp; 同样实现了常规数据库存储、Json文件存储等管道。另外，在settings.py设置了同步请求最大数量100，加快爬取速度。
 ```Python
-# Obey robots.txt rules
-ROBOTSTXT_OBEY = False
+# Configure maximum concurrent requests performed by Scrapy (default: 16)
+CONCURRENT_REQUESTS = 100
 ```
 
 ### 6. RetryMiddleware - 重试中间件
