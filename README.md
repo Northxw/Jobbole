@@ -8,8 +8,8 @@
 - 将粉丝个人主页URL返回至个人主页解析函数，递归爬取粉丝的粉丝，直至粉丝的粉丝数量为零。
 
 ## 爬取流程图
-&emsp;
-<center>![爬取流程图]()</center>
+
+![爬取流程图](https://github.com/Northxw/Crawl_Jobbole/blob/master/jobbole/utils/%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
 
 ## 第三方库依赖列表
 库名称 | 安装方式
@@ -18,7 +18,7 @@
 <b>Pywin32</b> | <b>[pywin32 官网](https://sourceforge.net/projects/pywin32/files/pywin32/Build%20221/)
 
 ## 难点分析
-#### 1.文章标题
+### 1.文章标题
 &emsp; 文章标题在文章详情页不好获取，可以选择在文章列表页获取后使用Reqeust的meta参数传递给下级解析函数。如下：
 ```Python
     def parse(self, response):
@@ -40,7 +40,7 @@
                           meta={'title': title_list.pop(0)})
 ```
 
-#### 2.文章作者及个人主页URL
+### 2.文章作者及个人主页URL
 &emsp; 经判断，伯乐在线大部分文章来源于引用，也就是说实际用户数量不是很多。所以，当引用文章和真实博文处于同一页，就得想办法做区分。
 ```Python
  # 作者
@@ -52,7 +52,7 @@ if item['author'] is None:
     item['person_home_page'] = response.css('#author-bio > h3 > a::attr(href)').extract_first('unknown')
 ```
 
-#### 3. 个人详情页注册信息
+### 3. 个人详情页注册信息
 &emsp; 注册信息可算是个Bug吧。有的用户只填写了城市，有的用户把包括城市在内的单位、个人网站等全部填写。所以，必须自己实现算法来区分。
 ```Python
 # 注册时间、城市、单位、网站
@@ -68,7 +68,7 @@ for info in member_info:
             item[member_info_dict[verfi_text]] = info.xpath('./a/@href').extract_first()
 ```
 
-#### 4. 递归获取粉丝的粉丝信息
+### 4. 递归获取粉丝的粉丝信息
 &emsp; 当解析完用户的个人主页后，会得到粉丝列表页URL，只需遍历后将个人主页链接 yield 给解析函数即可实现递归爬取网站所有用户信息。
 ```Python
     def parse_member_following_list(self, response):
@@ -95,7 +95,7 @@ for info in member_info:
                           )
 ```
 
-#### 5. MysqlTwistedPipeline - 异步存储数据
+### 5. MysqlTwistedPipeline - 异步存储数据
 &emsp; 由于Spider的爬取速度高于数据库存储速度，为避免数据拥塞，实现基于 **twisted.enterprise.adbapi** 的异步存储。需要实现的主要方法如下：
 ```Python
 class MysqlTwistedPipeline(object):
@@ -129,10 +129,10 @@ class MysqlTwistedPipeline(object):
 ROBOTSTXT_OBEY = False
 ```
 
-#### 6. RetryMiddleware - 重试中间件
+### 6. RetryMiddleware - 重试中间件
 &emsp; 伯乐在线的用户信息偏少，下载失败后重试。这里继承已有的Retry中间件，仅作微小改动。
 
-#### 7. 数据表字段设置
+### 7. 数据表字段设置
 &emsp; 经测试，文章的内容长度普遍大于1000，而且充满制表符换行符。这里使用正则去除空白并设置了保存的最大长度值，超过就截取。如下：
 ```
     item['content'] = re.sub('\s+', '',response.xpath('//div[@class="entry"]').xpath('string(.)').extract_first().strip())
@@ -142,22 +142,22 @@ ROBOTSTXT_OBEY = False
             item['content'] = item['content'][0: self.settings.get('CONTENT_LENGTH')] + '...'
 ```
 
-#### 8.爬虫状态报告
+### 8.爬虫状态报告
 &emsp; 状态报告邮件应该是必不可少的。所以，在之后的每次实战我都将添加该模块功能。
 
 ## 结果
 
 &emsp; **爬虫状态邮件**
 
-![email_jobbole]()
+![email_jobbole](https://github.com/Northxw/Crawl_Jobbole/blob/master/jobbole/utils/email_jobbole.png)
 
 &emsp; **文章信息表**
 
-![db_article]()
+![db_article](https://github.com/Northxw/Crawl_Jobbole/blob/master/jobbole/utils/db_article.png)
 
 &emsp; **个人信息表**
 
-![db_person]()
+![db_person](https://github.com/Northxw/Crawl_Jobbole/blob/master/jobbole/utils/db_person.png)
 
 ## 更新列表
 &emsp; 暂无。
