@@ -134,7 +134,7 @@ ROBOTSTXT_OBEY = False
 
 ### 7. 数据表字段设置
 &emsp; 经测试，文章的内容长度普遍大于1000，而且充满制表符换行符。这里使用正则去除空白并设置了保存的最大长度值，超过就截取。如下：
-```
+```Python
     item['content'] = re.sub('\s+', '',response.xpath('//div[@class="entry"]').xpath('string(.)').extract_first().strip())
     # 限制content长度
     if item['content']:
@@ -160,4 +160,4 @@ ROBOTSTXT_OBEY = False
 ![db_person](https://github.com/Northxw/Crawl_Jobbole/blob/master/jobbole/utils/db_person.png)
 
 ## 更新列表
-&emsp; 暂无。
+&emsp; 暂无
